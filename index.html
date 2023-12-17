@@ -1,404 +1,811 @@
+Linear Regression
+----------------------------------------------------------------------------------------------------------------------------
+import random
+import matplotlib.pyplot as plt
 
-##########################HISTOGRAM AND EQUALIZATION################################
+random.seed(0)
 
-import cv2
-import numpy as np
-from matplotlib import pyplot as plt
-# Load an image
-image_path = '/content/7da76481eff0569e7377c992ce76edad.jpg'
-image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+num_samples = 500
 
-# Function for histogram equalization
-def histogram_equalization(img):
-    equalized = cv2.equalizeHist(img)
-    return equalized
-    
-# Function for morphological operations (erosion and dilation)
-def morphological_operations(img):
-    # Define a kernel (structuring element)
-    kernel = np.ones((5, 5), np.uint8)
-    # Erosion
-    erosion = cv2.erode(img, kernel, iterations=1)
-    # Dilation
-    dilation = cv2.dilate(img, kernel, iterations=1)
-    return erosion, dilation
-    
-# Apply histogram equalization
-equalized_image = histogram_equalization(image)
+X = [random.uniform(0, 100) for _ in range(num_samples)]
+Y = [443 * x + random.uniform(-1, 1) for x in X]
 
-# Apply morphological operations
-eroded_image, dilated_image = morphological_operations(image)
+X_train, Y_train = X[:400], Y[:400]
+X_test, Y_test = X[400:], Y[400:]
 
-# Display the original and enhanced images
-plt.figure(figsize=(10, 8))
-plt.subplot(2, 3, 1)
-plt.imshow(image, cmap='gray')
-plt.title('Original Image')
-plt.subplot(2, 3, 2)
-plt.imshow(equalized_image, cmap='gray')
-plt.title('Equalized Histogram')
-plt.subplot(2, 3, 4)
-plt.imshow(eroded_image, cmap='gray')
-plt.title('Erosion')
-plt.subplot(2, 3, 5)
-plt.imshow(dilated_image, cmap='gray')
-plt.title('Dilation')
-plt.suptitle('Image Enhancement Operations', fontsize=16)
+X_train_mean = sum(X_train) / len(X_train)
+Y_train_mean = sum(Y_train) / len(Y_train)
+
+numerator = sum((X_train[i] - X_train_mean) * (Y_train[i] - Y_train_mean) for i in range(len(X_train)))
+denominator = sum((X_train[i] - X_train_mean) ** 2 for i in range(len(X_train)))
+
+b1 = numerator / denominator
+b0 = Y_train_mean - b1 * X_train_mean
+
+Y_pred = [b0 + b1 * x for x in X_test]
+
+mse = sum((Y_test[i] - Y_pred[i]) ** 2 for i in range(len(Y_test))) / len(Y_test)
+
+plt.scatter(X_test, Y_test, color='green', label='Actual Testing Data')
+plt.plot(X_test, Y_pred, color='red', linewidth=2, label='Regression Line')
+
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.legend()
+plt.title('Linear Regression')
 plt.show()
 
-######################################Feed forward neural network with three hidden layers#############################
+print("Slope (b1):", b1)
+print("Intercept (b0):", b0)
+print("Mean Squared Error (MSE):", mse)
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Histogram Equalization
+------------------------------------------------------------------------------------------------------------------------
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the image
+image = cv2.imread("/hitler.jpeg", cv2.IMREAD_GRAYSCALE)
+
+# Perform histogram equalization
+equalized_image = cv2.equalizeHist(image)
+
+# Create histograms for the original and equalized images
+hist_original = cv2.calcHist([image], [0], None, [256], [0, 256])
+hist_equalized = cv2.calcHist([equalized_image], [0], None, [256], [0, 256])
+
+# Display the original and equalized images using Matplotlib
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(image, cmap='gray', vmin=0, vmax=255)  # Normalize pixel values
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.title('Equalized Image')
+plt.imshow(equalized_image, cmap='gray', vmin=0, vmax=255)  # Normalize pixel values
+plt.axis('off')
+
+plt.show()
+
+# Plot the histograms
+plt.figure(figsize=(12, 6))
+plt.subplot(1, 2, 1)
+plt.title('Original Image Histogram')
+plt.plot(hist_original)
+plt.xlim([0, 256])
+plt.xlabel('Pixel Value')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 2, 2)
+plt.title('Equalized Image Histogram')
+plt.plot(hist_equalized)
+plt.xlim([0, 256])
+plt.xlabel('Pixel Value')
+plt.ylabel('Frequency')
+
+plt.show()
+---------------------------------------------------------------------------------------------------------------------------
+Morphological Operations
+--------------------------------------------------------------------------------------------------------------------------
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read the image
+image = cv2.imread("/Chad.jpeg", 0)
+
+# Define a kernel (structuring element)
+kernel = np.ones((5, 5), np.uint8)
+
+# Perform erosion
+erosion = cv2.erode(image, kernel, iterations=1)
+
+# Perform dilation using the eroded image
+dilated = cv2.dilate(erosion, kernel, iterations=1)
+
+plt.subplot(1, 3, 1)
+plt.imshow(image, cmap='gray')
+plt.title('Original Image')
+
+plt.subplot(1, 3, 2)
+plt.imshow(erosion, cmap='gray')
+plt.title('Eroded Image')
+
+plt.subplot(1, 3, 3)
+plt.imshow(dilated, cmap='gray')
+plt.title('Dilated Image')
+
+plt.tight_layout()
+plt.show()
+
+
+----------------------------------------------------------------------------------------------------------------------------
+Feed Forward Neural Network
+----------------------------------------------------------------------------------------------------------------------------
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import matplotlib.pyplot as plt
+import random
+import numpy as np
+
+# Load CIFAR-10 dataset
+(train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
+train_images, test_images = train_images / 255.0, test_images / 255.0
+
+# Convert labels to one-hot encoding
+train_labels = to_categorical(train_labels, 10)
+test_labels = to_categorical(test_labels, 10)
+
+# Data augmentation
+datagen = ImageDataGenerator(
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    horizontal_flip=True,
+    zoom_range=0.2,
+)
+datagen.fit(train_images)
+
+# Build the model
+model = models.Sequential()
+model.add(layers.Flatten(input_shape=(32, 32, 3)))
+model.add(layers.Dense(512, activation='relu'))
+model.add(layers.BatchNormalization())
+model.add(layers.Dropout(0.5))
+model.add(layers.Dense(256, activation='relu'))
+model.add(layers.BatchNormalization())
+model.add(layers.Dropout(0.5))
+model.add(layers.Dense(128, activation='relu'))
+model.add(layers.BatchNormalization())
+model.add(layers.Dense(10, activation='softmax'))
+
+# Compile the model
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+history = model.fit(datagen.flow(train_images, train_labels, batch_size=64),
+                    epochs=10,
+                    validation_data=(test_images, test_labels))
+
+# Evaluate the model
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print(f'Test accuracy: {test_acc * 100:.2f}%')
+
+# Model summary
+model.summary()
+
+# Plot training history
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title('Training loss and Accuracy')
+plt.xlabel('No. of epochs')
+plt.ylabel('Accuracy/Loss')
+plt.legend()
+plt.show()
+
+# Display a random test image
+n = random.randint(0, len(test_images) - 1)
+plt.imshow(test_images[n])
+plt.show()
+
+# Make predictions on the test set
+predictions = model.predict(np.expand_dims(test_images[n], axis=0))
+predicted_label = np.argmax(predictions)
+print(f"Predicted Label: {predicted_label}")
+
+----------------------------------------------------------------------------------------------------------------------------
+Xavier Initialization
+---------------------------------------------------------------------------------------------------------------------------
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import LearningRateScheduler, EarlyStopping
+import matplotlib.pyplot as plt
+
+(train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
+train_images, test_images = train_images / 255.0, test_images / 255.0
+train_labels = to_categorical(train_labels, 10)
+test_labels = to_categorical(test_labels, 10)
+
+datagen = ImageDataGenerator(
+    rotation_range=15,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    horizontal_flip=True,
+)
+
+datagen.fit(train_images)
+
+model = models.Sequential()
+model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Flatten())
+model.add(layers.Dense(512, activation='relu'))
+model.add(layers.BatchNormalization())
+model.add(layers.Dropout(0.5))
+model.add(layers.Dense(256, activation='relu'))
+model.add(layers.BatchNormalization())
+model.add(layers.Dropout(0.5))
+model.add(layers.Dense(128, activation='relu'))
+model.add(layers.BatchNormalization())
+model.add(layers.Dropout(0.5))
+model.add(layers.Dense(10, activation='softmax'))
+
+def lr_scheduler(epoch, lr):
+    if epoch % 2 == 0 and epoch > 0:
+        return lr * 0.9
+    return lr
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+callbacks = [
+    LearningRateScheduler(lr_scheduler),
+    EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+]
+
+history = model.fit(datagen.flow(train_images, train_labels, batch_size=64),
+                    epochs=10,
+                    validation_data=(test_images, test_labels),
+                    callbacks=callbacks)
+
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print(f'Test accuracy: {test_acc * 100:.2f}%')
+
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+import numpy as np
+
+predictions = model.predict(test_images)
+predicted_labels = np.argmax(predictions, axis=1)
+
+plt.figure(figsize=(10, 5))
+for i in range(5):
+    plt.subplot(1, 5, i + 1)
+    plt.imshow(test_images[i])
+    plt.title(f"Actual: {np.argmax(test_labels[i])}\nPredicted: {predicted_labels[i]}")
+    plt.axis('off')
+
+plt.show()
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+Kaiming Initialization
+------------------------------------------------------------------------------------------------------------------------------
 
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.utils import to_categorical
-# Load CIFAR-10 dataset
-(train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
-# Normalize pixel values to be between 0 and 1
-train_images, test_images = train_images / 255.0, test_images / 255.0
-# Convert labels to one-hot encoding
-train_labels = to_categorical(train_labels, num_classes=10)
-test_labels = to_categorical(test_labels, num_classes=10)
-# Build the neural network model
-model = models.Sequential()
-model.add(layers.Flatten(input_shape=(32, 32, 3)))
-model.add(layers.Dense(256, activation='relu'))
-model.add(layers.Dense(128, activation='relu'))
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10, activation='softmax'))
-# Compile the model
-model.compile(optimizer='adam',
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
-# Display the model summary
-model.summary()
-# Train the model
-history = model.fit(train_images, train_labels, epochs=10, validation_data=(test_images, test_labels))
-# Evaluate the model
-test_loss, test_acc = model.evaluate(test_images, test_labels)
-print(f'Test accuracy: {test_acc}')
-# You can also plot the training history to visualize training/validation accuracy and loss over epochs
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import LearningRateScheduler, EarlyStopping
 import matplotlib.pyplot as plt
-# Plot training history
-plt.plot(history.history['accuracy'], label='accuracy')
-plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.ylim([0, 1])
-plt.legend(loc='lower right')
-plt.show()
 
-############################################Stochastic Gradient Descent (SGD) with Xavier Initialization and L2 Regularization:########################
-
-import tensorflow as tf
-from tensorflow.keras import layers, models, regularizers
-from tensorflow.keras.datasets import cifar10
-from tensorflow.keras.utils import to_categorical
-import numpy as np
-# Load and preprocess the CIFAR-10 dataset
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
-x_train, x_test = x_train / 255.0, x_test / 255.0
-y_train, y_test = to_categorical(y_train), to_categorical(y_test)
-# Define the neural network model
-def create_sgd_xavier_regularized_model():
-    model = models.Sequential()
-    model.add(layers.Flatten(input_shape=(32, 32, 3)))
-    model.add(layers.Dense(256, kernel_initializer='glorot_uniform', kernel_regularizer=regularizers.l2(0.01), activation='relu'))
-    model.add(layers.Dense(128, kernel_initializer='glorot_uniform', kernel_regularizer=regularizers.l2(0.01), activation='relu'))
-    model.add(layers.Dense(64, kernel_initializer='glorot_uniform', kernel_regularizer=regularizers.l2(0.01), activation='relu'))
-    model.add(layers.Dense(10, activation='softmax'))
-    return model
-# Compile the model with SGD optimizer
-model_sgd = create_sgd_xavier_regularized_model()
-model_sgd.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.001),
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-# Train the model
-history_sgd = model_sgd.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
-# Evaluate the model
-test_loss_sgd, test_acc_sgd = model_sgd.evaluate(x_test, y_test, verbose=2)
-print(f"\nTest accuracy (SGD): {test_acc_sgd}")
-
-#########################################Adam Optimizer with Xavier Initialization and L2 Regularization:##################################
-
-import tensorflow as tf
-from tensorflow.keras import layers, models, regularizers
-from tensorflow.keras.datasets import cifar10
-from tensorflow.keras.utils import to_categorical
-import numpy as np
-# Load and preprocess the CIFAR-10 dataset
-(x_train, y_train), (x_test, y_test) = cifar10.load_data()
-x_train, x_test = x_train / 255.0, x_test / 255.0
-y_train, y_test = to_categorical(y_train), to_categorical(y_test)
-# Define the neural network model
-def create_adam_xavier_regularized_model():
-    model = models.Sequential()
-    model.add(layers.Flatten(input_shape=(32, 32, 3)))
-    model.add(layers.Dense(256, kernel_initializer='glorot_uniform', kernel_regularizer=regularizers.l2(0.01), activation='relu'))
-    model.add(layers.Dense(128, kernel_initializer='glorot_uniform', kernel_regularizer=regularizers.l2(0.01), activation='relu'))
-    model.add(layers.Dense(64, kernel_initializer='glorot_uniform', kernel_regularizer=regularizers.l2(0.01), activation='relu'))
-    model.add(layers.Dense(10, activation='softmax'))
-    return model
-# Compile the model with Adam optimizer
-model_adam = create_adam_xavier_regularized_model()
-model_adam.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-                   loss='categorical_crossentropy',
-                   metrics=['accuracy'])
-# Train the model
-history_adam = model_adam.fit(x_train, y_train, epochs=10, validation_data=(x_test, y_test))
-# Evaluate the model
-test_loss_adam, test_acc_adam = model_adam.evaluate(x_test, y_test, verbose=2)
-print(f"\nTest accuracy (Adam): {test_acc_adam}")
-
-#########################################feed forward neural network with three hidden layers for the CIFAR-10 datasets stochastic gradient descent (SGD) or Adam, with Kaiming initialization for weight initialization or regularization technique########
-
-import tensorflow as tf
-from tensorflow.keras import layers, models, optimizers
-from tensorflow.keras.initializers import VarianceScaling
-from tensorflow.keras.datasets import cifar10
-from tensorflow.keras.utils import to_categorical
-# Load CIFAR-10 dataset
 (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
-# Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images / 255.0, test_images / 255.0
-# One-hot encode the labels
 train_labels = to_categorical(train_labels, 10)
 test_labels = to_categorical(test_labels, 10)
-# Define the model
-model = models.Sequential()
-# Flatten the input as it's an image
-model.add(layers.Flatten(input_shape=(32, 32, 3)))
-# Hidden layers with Kaiming initialization
-model.add(layers.Dense(512, activation='relu', kernel_initializer=VarianceScaling(scale=2.0, mode='fan_in', distribution='normal')))
-model.add(layers.Dense(256, activation='relu', kernel_initializer=VarianceScaling(scale=2.0, mode='fan_in', distribution='normal')))
-model.add(layers.Dense(128, activation='relu', kernel_initializer=VarianceScaling(scale=2.0, mode='fan_in', distribution='normal')))
-# Output layer
-model.add(layers.Dense(10, activation='softmax'))
-# Compile the model
-model.compile(optimizer=optimizers.Adam(),
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
-# Display the model summary
-model.summary()
-# Train the model
-epochs = 20
-history = model.fit(train_images, train_labels, epochs=epochs, validation_data=(test_images, test_labels))
-# Evaluate the model on the test set
-test_loss, test_acc = model.evaluate(test_images, test_labels)
-print(f'Test accuracy: {test_acc}')
-# Print training history
-print("\nTraining History:")
-print(f"{'Epoch':<10}{'Accuracy':<20}{'Loss':<20}{'Val Accuracy':<20}{'Val Loss'}")
-for epoch in range(epochs):
-    print(f"{epoch + 1:<10}{history.history['accuracy'][epoch]:<20.4f}{history.history['loss'][epoch]:<20.4f}"
-          f"{history.history['val_accuracy'][epoch]:<20.4f}{history.history['val_loss'][epoch]:.4f}")
-          
-          
-########################Convolutional Neural Network (CNN) architecture for digit classification on the MNIST dataset##############3333333
 
-# Import necessary libraries
+datagen = ImageDataGenerator(
+    rotation_range=15,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    horizontal_flip=True,
+)
+datagen.fit(train_images)
+
+model_kaiming = models.Sequential()
+model_kaiming.add(layers.Flatten(input_shape=(32, 32, 3)))
+model_kaiming.add(layers.Dense(512, activation='relu', kernel_initializer='he_normal'))
+model_kaiming.add(layers.BatchNormalization())
+model_kaiming.add(layers.Dense(256, activation='relu', kernel_initializer='he_normal'))
+model_kaiming.add(layers.BatchNormalization())
+model_kaiming.add(layers.Dense(128, activation='relu', kernel_initializer='he_normal'))
+model_kaiming.add(layers.BatchNormalization())
+model_kaiming.add(layers.Dense(10, activation='softmax', kernel_initializer='he_normal'))
+model_kaiming.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+def lr_schedule(epoch):
+    if epoch < 10:
+        return 0.001
+    elif epoch < 20:
+        return 0.0005
+    elif epoch < 30:
+        return 0.0001
+    else:
+        return 0.00005
+
+lr_scheduler = LearningRateScheduler(lr_schedule)
+early_stopping = EarlyStopping(monitor='val_accuracy', patience=10, restore_best_weights=True)
+
+history_kaiming = model_kaiming.fit(datagen.flow(train_images, train_labels, batch_size=64),
+                                    epochs=10, validation_data=(test_images, test_labels),
+                                    callbacks=[lr_scheduler, early_stopping])
+
+test_loss_kaiming, test_acc_kaiming = model_kaiming.evaluate(test_images, test_labels)
+print(f'Test accuracy with Kaiming initialization: {test_acc_kaiming * 100:.2f}%')
+
+plt.plot(history_kaiming.history['accuracy'], label='Kaiming Training Accuracy')
+plt.plot(history_kaiming.history['val_accuracy'], label='Kaiming Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+import numpy as np
+predictions = model_kaiming.predict(test_images)
+predicted_labels = np.argmax(predictions, axis=1)
+
+plt.figure(figsize=(10, 5))
+for i in range(5):
+    plt.subplot(1, 5, i + 1)
+    plt.imshow(test_images[i])
+    plt.title(f"Actual: {np.argmax(test_labels[i])}\nPredicted: {predicted_labels[i]}")
+    plt.axis('off')
+plt.show()
+
+------------------------------------------------------------------------------------------------------------------------------
+
+Dropout Regularization
+------------------------------------------------------------------------------------------------------------------------------
+
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.metrics import classification_report
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.datasets import cifar10
+import matplotlib.pyplot as plt
+import numpy as np
+
+print("[INFO] loading CIFAR-10 data...")
+((trainX, trainY), (testX, testY)) = cifar10.load_data()
+trainX = trainX.astype("float") / 255.0
+testX = testX.astype("float") / 255.0
+trainX = trainX.reshape((trainX.shape[0], 3072))
+testX = testX.reshape((testX.shape[0], 3072))
+lb = LabelBinarizer()
+trainY = lb.fit_transform(trainY)
+testY = lb.transform(testY)
+labelNames = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
+
+model = Sequential()
+model.add(Dense(1024, input_shape=(3072,), activation="relu"))
+model.add(Dropout(0.5))
+model.add(Dense(512, activation="relu"))
+model.add(Dropout(0.5))
+model.add(Dense(256, activation="relu"))
+model.add(Dropout(0.5))
+model.add(Dense(10, activation="softmax"))
+
+print("[INFO] training network...")
+sgd = SGD(0.01)
+model.compile(loss="categorical_crossentropy", optimizer=sgd, metrics=["accuracy"])
+H = model.fit(trainX, trainY, validation_data=(testX, testY), epochs=10, batch_size=32)
+
+test_loss, test_acc = model.evaluate(testX, testY)
+print("Test Loss: %.2f" % test_loss)
+print("Test Accuracy: %.2f" % (test_acc * 100))
+
+model.summary()
+
+print("[INFO] evaluating network...")
+predictions = model.predict(testX, batch_size=32)
+print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=labelNames))
+
+plt.style.use("ggplot")
+plt.figure()
+plt.plot(np.arange(0, 10), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, 10), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, 10), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(0, 10), H.history["val_accuracy"], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'])
+plt.show()
+
+import matplotlib.pyplot as plt
+import random
+
+n = random.randint(0, 9999)
+image = testX[n].reshape(32, 32, 3)
+plt.imshow(image)
+plt.show()
+
+predictions = model.predict(testX)
+predicted_label = np.argmax(predictions[n])
+print("Predicted Label:", predicted_label)
+
+plt.plot(H.history['accuracy'], label='Training Accuracy')
+plt.plot(H.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+------------------------------------------------------------------------------------------------------------------------------
+
+L2 Regularization
+------------------------------------------------------------------------------------------------------------------------------
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras import regularizers
+from tensorflow.keras.layers import Dense, Dropout
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.metrics import classification_report
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.datasets import cifar10
+import matplotlib.pyplot as plt
+import numpy as np
+
+print("[INFO] loading CIFAR-10 data...")
+((trainX, trainY), (testX, testY)) = cifar10.load_data()
+trainX = trainX.astype("float") / 255.0
+testX = testX.astype("float") / 255.0
+
+# Flatten the images
+trainX = trainX.reshape((trainX.shape[0], 32 * 32 * 3))
+testX = testX.reshape((testX.shape[0], 32 * 32 * 3))
+
+lb = LabelBinarizer()
+trainY = lb.fit_transform(trainY)
+testY = lb.transform(testY)
+
+labelNames = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
+
+model = Sequential()
+model.add(Dense(512, input_shape=(32 * 32 * 3,), activation="relu", kernel_regularizer=regularizers.l2(0.001)))
+model.add(Dropout(0.5))
+model.add(Dense(256, activation="relu", kernel_regularizer=regularizers.l2(0.001)))
+model.add(Dropout(0.3))
+model.add(Dense(128, activation="relu", kernel_regularizer=regularizers.l2(0.001)))
+model.add(Dense(10, activation="softmax"))
+
+print("[INFO] training network...")
+optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
+model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+H = model.fit(trainX, trainY, validation_data=(testX, testY), epochs=10, batch_size=32)
+
+test_loss, test_acc = model.evaluate(testX, testY)
+print("Test Loss: %.2f" % test_loss)
+print("Test Accuracy: %.2f" % (test_acc * 100))
+
+model.summary()
+
+print("[INFO] evaluating network...")
+predictions = model.predict(testX, batch_size=32)
+print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=labelNames))
+
+plt.style.use("ggplot")
+plt.figure()
+plt.plot(np.arange(0, 10), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, 10), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, 10), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(0, 10), H.history["val_accuracy"], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'])
+plt.show()
+
+------------------------------------------------------------------------------------------------------------------------------
+
+Convolutional Neural Network
+------------------------------------------------------------------------------------------------------------------------------
+
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.datasets import mnist
-from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 # Load and preprocess the MNIST dataset
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
-# Reshape and normalize the input images
+
 train_images = train_images.reshape((60000, 28, 28, 1)).astype('float32') / 255
 test_images = test_images.reshape((10000, 28, 28, 1)).astype('float32') / 255
-# One-hot encode the labels
-train_labels = to_categorical(train_labels)
-test_labels = to_categorical(test_labels)
-# Build the Convolutional Neural Network (CNN) model
+
+# Data augmentation
+datagen = ImageDataGenerator(rotation_range=15, width_shift_range=0.1, height_shift_range=0.1)
+augmented_train_data = datagen.flow(train_images, train_labels, batch_size=64)
+
+# Build the CNN model
 model = models.Sequential()
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
+
+model.add(layers.Conv2D(8, (3, 3), activation='relu', input_shape=(28, 28, 1)))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.Dropout(0.5))
 model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
+model.add(layers.Dense(8, activation='relu'))
+model.add(layers.Dropout(0.5))
 model.add(layers.Dense(10, activation='softmax'))
-# Compile the model
-model.compile(optimizer='adam',
-              loss='categorical_crossentropy',
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
-# Display a summary of the model architecture
-model.summary()
+
 # Train the model
-history = model.fit(train_images, train_labels, epochs=5, batch_size=64, validation_split=0.2)
-# Evaluate the model on the test set
+model.fit(augmented_train_data, epochs=10, validation_data=(test_images, test_labels))
+
+# Evaluate the model
 test_loss, test_acc = model.evaluate(test_images, test_labels)
-print(f'Test accuracy: {test_acc}')
-# Optional: Plot training history (accuracy and loss over epochs)
+print("Test Accuracy:", test_acc)
+[7:10 PM, 12/17/2023] Gautham: Transfer Learning
+
+from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
-plt.figure(figsize=(12, 4))
-# Plot training & validation accuracy values
-plt.subplot(1, 2, 1)
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('Model Accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.legend(['Train', 'Validation'], loc='upper left')
-# Plot training & validation loss values
-plt.subplot(1, 2, 2)
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('Model Loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.legend(['Train', 'Validation'], loc='upper left')
-plt.tight_layout()
-plt.show()
-import numpy as np
-# Select random images from the test set
-num_samples = 5
-random_indices = np.random.choice(test_images.shape[0], num_samples, replace=False)
-sample_images = test_images[random_indices]
-sample_labels = test_labels[random_indices]
-# Make predictions using the trained model
-predictions = model.predict(sample_images)
-# Display the sample images and predictions
-plt.figure(figsize=(15, 3))
-for i in range(num_samples):
-    # Display the image
-    plt.subplot(1, num_samples, i + 1)
-    plt.imshow(sample_images[i].reshape(28, 28), cmap='gray')
-    plt.axis('off')
-    plt.title(f'Label: {np.argmax(sample_labels[i])}\nPrediction: {np.argmax(predictions[i])}')
-plt.show()
-
-###############################################
-
-import tensorflow as tf
-from tensorflow.keras import layers, models, optimizers
-from tensorflow.keras.initializers import VarianceScaling
-from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import to_categorical
-# Load CIFAR-10 dataset
-(train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
-# Normalize pixel values to be between 0 and 1
-train_images, test_images = train_images / 255.0, test_images / 255.0
-# One-hot encode the labels
-train_labels = to_categorical(train_labels, 10)
-test_labels = to_categorical(test_labels, 10)
-# Define the model
-model = models.Sequential()
-# Flatten the input as it's an image
-model.add(layers.Flatten(input_shape=(32, 32, 3)))
-# Hidden layers with Kaiming initialization
-model.add(layers.Dense(512, activation='relu', kernel_initializer=VarianceScaling(scale=2.0, mode='fan_in', distribution='normal')))
-model.add(layers.Dense(256, activation='relu', kernel_initializer=VarianceScaling(scale=2.0, mode='fan_in', distribution='normal')))
-model.add(layers.Dense(128, activation='relu', kernel_initializer=VarianceScaling(scale=2.0, mode='fan_in', distribution='normal')))
-# Output layer
-model.add(layers.Dense(10, activation='softmax'))
-# Compile the model
-model.compile(optimizer=optimizers.Adam(),
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
-# Display the model summary
-model.summary()
-# Train the model
-epochs = 10
-history = model.fit(train_images, train_labels, epochs=epochs, validation_data=(test_images, test_labels))
-# Evaluate the model on the test set
-test_loss, test_acc = model.evaluate(test_images, test_labels)
-print(f'Test accuracy: {test_acc}')
-# Print training history
-print("\nTraining History:")
-print(f"{'Epoch':<10}{'Accuracy':<20}{'Loss':<20}{'Val Accuracy':<20}{'Val Loss'}")
-for epoch in range(epochs):
-    print(f"{epoch + 1:<10}{history.history['accuracy'][epoch]:<20.4f}{history.history['loss'][epoch]:<20.4f}"
-          f"{history.history['val_accuracy'][epoch]:<20.4f}{history.history['val_loss'][epoch]:.4f}")
+import numpy as np
+import warnings
+warnings.filterwarnings('ignore')
 
-              
-#####################################################   vgg19   #######################################
-              
-from tensorflow.keras.datasets import mnist 
-import matplotlib.pyplot as plt 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator 
-from tensorflow.keras.utils import to_categorical 
-import numpy as np 
-import warnings 
-warnings.filterwarnings('ignore') 
- 
-(X_train, y_train), (X_test, y_test) = mnist.load_data() 
-X_train.shape, X_test.shape 
-IMG_SIZE = 32 
- 
-import cv2 
-def resize(img_array): 
-    tmp = np.empty((img_array.shape[0], IMG_SIZE, IMG_SIZE)) 
- 
-    for i in range(len(img_array)): 
-        img = img_array[i].reshape(28, 28).astype('uint8') 
-        img = cv2.resize(img, (IMG_SIZE, IMG_SIZE)) 
-        img = img.astype('float32')/255 
-        tmp[i] = img 
-    return tmp 
- 
-X_train_resize = resize(X_train) 
-X_test_resize = resize(X_test) 
- 
-x_train_final = np.stack((X_train_resize,)*3, axis=-1) 
-x_test_final = np.stack((X_test_resize,)*3, axis=-1) 
-print(x_train_final.shape) 
-print(x_test_final.shape) 
- 
-from keras.utils import to_categorical 
-y_train_final = to_categorical(y_train, num_classes=10) 
-print(y_train_final.shape) 
-y_test_final = to_categorical(y_test, num_classes=10) 
-print(y_test_final.shape) 
-y_train_final = to_categorical(y_train) 
-y_test_final = to_categorical(y_test) 
- 
-print(y_train_final.shape) 
-print(y_test_final.shape) 
- 
-from keras.models import Sequential 
-from keras.applications import VGG19 
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
+IMG_SIZE = 32
+
+import cv2
+def resize(img_array):
+    tmp = np.empty((img_array.shape[0], IMG_SIZE, IMG_SIZE))
+    for i in range(len(img_array)):
+        img = img_array[i].reshape(28, 28).astype('uint8')
+        img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
+        img = img.astype('float32')/255
+        tmp[i] = img
+    return tmp
+
+X_train_resize = resize(X_train)
+X_test_resize = resize(X_test)
+
+x_train_final = np.stack((X_train_resize,)*3, axis=-1)
+x_test_final = np.stack((X_test_resize,)*3, axis=-1)
+
+from keras.models import Sequential
+from keras.applications import VGG19
 from keras.layers import Dense, Flatten
 
-vgg19 = VGG19(weights = 'imagenet', 
-               include_top = False, 
-               input_shape=(IMG_SIZE, IMG_SIZE, 3) 
-               ) 
- 
-model = Sequential() 
-model.add(vgg19) 
-model.add(Flatten()) 
-model.add(Dense(10, activation='softmax')) 
-model.compile(loss='categorical_crossentropy', 
-               optimizer='sgd', 
-               metrics=['accuracy']) 
- 
-model.summary() 
-model.compile(optimizer = 'Adam', loss = 'categorical_crossentropy', 
-metrics = ['accuracy']) 
- 
-history = model.fit(x_train_final, y_train_final, 
-                    epochs=5, 
-                    batch_size=128, 
-                    validation_data=(x_test_final, y_test_final)) 
- 
-test_loss, test_accuracy = model.evaluate(x_test_final, y_test_final) 
-print("Loss = %.2f"%test_loss) 
-print("Accuracy=%.2f"%test_accuracy) 
- 
-preds = model.predict(x_test_final, batch_size=128) 
-preds.shape 
-results = np.argmax(preds, axis=-1) 
-results.shape 
-history.history.keys() 
- 
-plt.plot(history.history['accuracy']) 
-plt.plot(history.history['val_accuracy']) 
-plt.plot(history.history['loss']) 
-plt.plot(history.history['val_loss']) 
-plt.title('Training Loss and Accuracy') 
-plt.xlabel('no.of epochs') 
-plt.ylabel('Accuracy/Loss') 
-plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss']) 
-plt.show() 
+from keras.utils import to_categorical
+y_train_final = to_categorical(y_train)
+y_test_final = to_categorical(y_test)
+
+vgg19 = VGG19(weights='imagenet',
+              include_top=False,
+              input_shape=(IMG_SIZE, IMG_SIZE, 3))
+
+model = Sequential()
+model.add(vgg19)
+model.add(Flatten())
+model.add(Dense(10, activation='softmax'))
+
+model.compile(loss='categorical_crossentropy',
+              optimizer='adam',  # Change 'sgd' to 'adam'
+              metrics=['accuracy'])
+
+model.summary()
+
+history = model.fit(x_train_final, y_train_final,
+                    epochs=5,
+                    batch_size=128,
+                    validation_data=(x_test_final, y_test_final))
+
+test_loss, test_accuracy = model.evaluate(x_test_final, y_test_final)
+print("Loss = %.2f" % test_loss)
+print("Accuracy = %.2f" % test_accuracy)
+
+preds = model.predict(x_test_final, batch_size=128)
+results = np.argmax(preds, axis=-1)
+
+history.history.keys()
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Training Loss and Accuracy')
+plt.xlabel('no.of epochs')
+plt.ylabel('Accuracy/Loss')
+plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'])
+plt.show()
+------------------------------------------------------------------------------------------------------------------------------
+
+RNN IMDB
+------------------------------------------------------------------------------------------------------------------------------
+
+import tensorflow as tf
+from tensorflow import keras
+import numpy as np
+import matplotlib.pyplot as plt
+
+print(tf._version_)
+
+# Load IMDB dataset
+imdb = keras.datasets.imdb
+(train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
+
+# Explore the data
+print("Training entries: {}, labels: {}".format(len(train_data), len(train_labels)))
+print("Training labels: ", np.unique(train_labels))
+print("Test labels: ", np.unique(test_labels))
+
+# Print label distribution
+unique, counts = np.unique(train_labels, return_counts=True)
+print("Train label distribution: ", dict(zip(unique, counts)))
+unique, counts = np.unique(test_labels, return_counts=True)
+print("Test label distribution: ", dict(zip(unique, counts)))
+
+# Print the embedded vector
+print(train_data[0])
+print("Length of first two training entries: ", len(train_data[0]), len(train_data[1]))
+
+# Convert the embedded vector back to words
+word_index = imdb.get_word_index()
+
+# The first indices are reserved
+word_index = {k: (v + 3) for k, v in word_index.items()}
+word_index["<PAD>"] = 0
+word_index["<START>"] = 1
+word_index["<UNK>"] = 2  # UNKNOWN
+word_index["<UNUSED>"] = 3
+
+reverse_word_index = dict([(value, key) for (key, value) in word_index.items()])
+
+def decode_review(text):
+    return ''.join([reverse_word_index.get(i, '?') for i in text])
+
+decode_review(train_data[0])
+
+# Preprocess the data to make the review of uniform length
+maxlen = 256
+train_data = keras.preprocessing.sequence.pad_sequences(train_data, value=word_index["<PAD>"], padding='post', maxlen=maxlen)
+test_data = keras.preprocessing.sequence.pad_sequences(test_data, value=word_index["<PAD>"], padding='post', maxlen=maxlen)
+
+# Print length of first two training entries after padding
+print("Length of first two training entries after padding: ", len(train_data[0]), len(train_data[1]))
+
+# Create a model
+from keras.models import Sequential
+from keras.layers import Embedding, SimpleRNN, Dense
+
+vocab_size = 10000
+
+# Building a simple RNN model
+rnn_model = Sequential()
+rnn_model.add(Embedding(vocab_size, 16))
+rnn_model.add(SimpleRNN(100, return_sequences=True))
+rnn_model.add(SimpleRNN(50, return_sequences=True))
+rnn_model.add(SimpleRNN(25))
+rnn_model.add(Dense(1, activation='sigmoid'))
+
+print(rnn_model.summary())
+
+# Compile the model
+rnn_model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=["accuracy"])
+
+# Fit the model
+epochs = 5
+batch_size = 128
+history = rnn_model.fit(train_data, train_labels, validation_data=(test_data, test_labels), epochs=epochs, batch_size=batch_size, verbose=1)
+
+# Evaluate the model
+test_loss, test_accuracy = rnn_model.evaluate(test_data, test_labels)
+print("Loss = %.2f" % test_loss)
+print("Accuracy = %.2f" % test_accuracy)
+
+# Plot the training history
+plt.figure()
+plt.plot(history.history["accuracy"], label="Train")
+plt.plot(history.history["val_accuracy"], label="Test")
+plt.title("Accuracy")
+plt.ylabel("Accuracy")
+plt.xlabel("Epochs")
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.plot(history.history["loss"], label="Train")
+plt.plot(history.history["val_loss"], label="Test")
+plt.title("Loss")
+plt.ylabel("Loss")
+plt.xlabel("Epochs")
+plt.legend()
+plt.show()
+
+
+------------------------------------------------------------------------------------------------------------------------------
+
+LSTM GRU IMDB
+------------------------------------------------------------------------------------------------------------------------------
+
+import tensorflow as tf
+from tensorflow import keras
+from keras.layers import LSTM, GRU
+import numpy as np
+import matplotlib.pyplot as plt
+
+print(tf._version_)
+imdb = keras.datasets.imdb
+(train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
+
+# Explore the data
+print("Training entries: {}, labels: {}".format(len(train_data), len(train_labels)))
+print("Training labels: ", np.unique(train_labels))
+print("Test labels: ", np.unique(test_labels))
+unique, counts = np.unique(train_labels, return_counts=True)
+print("Train label distribution: ", dict(zip(unique, counts)))
+unique, counts = np.unique(test_labels, return_counts=True)
+print("Test label distribution: ", dict(zip(unique, counts)))
+
+# Preprocess the data to make the review of uniform length
+maxlen = 256
+train_data = keras.preprocessing.sequence.pad_sequences(train_data, value=0, padding='post', maxlen=maxlen)
+test_data = keras.preprocessing.sequence.pad_sequences(test_data, value=0, padding='post', maxlen=maxlen)
+
+# Create a common function to build and train models
+def build_and_train_model(model, train_data, train_labels, test_data, test_labels, epochs=5, batch_size=128):
+    model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=["accuracy"])
+    history = model.fit(train_data, train_labels, validation_data=(test_data, test_labels), epochs=epochs,
+                        batch_size=batch_size, verbose=1)
+    test_loss, test_accuracy = model.evaluate(test_data, test_labels)
+    print("Loss = %.2f" % test_loss)
+    print("Accuracy=%.2f" % test_accuracy)
+
+    # Plot training history
+    plt.figure()
+    plt.plot(history.history["accuracy"], label="Train")
+    plt.plot(history.history["val_accuracy"], label="Test")
+    plt.title("Accuracy")
+    plt.ylabel("Accuracy")
+    plt.xlabel("Epochs")
+    plt.legend()
+    plt.show()
+
+    plt.figure()
+    plt.plot(history.history["loss"], label="Train")
+    plt.plot(history.history["val_loss"], label="Test")
+    plt.title("Loss")
+    plt.ylabel("Loss")
+    plt.xlabel("Epochs")
+    plt.legend()
+    plt.show()
+
+# Build and train the LSTM model
+rnn_model = Sequential()
+rnn_model.add(keras.layers.Embedding(10000, 16))
+rnn_model.add(LSTM(128, activation='tanh'))
+rnn_model.add(Dense(1, activation='sigmoid'))
+
+print(rnn_model.summary())
+build_and_train_model(rnn_model, train_data, train_labels, test_data, test_labels)
+
+# Build and train the GRU model
+gru_model = Sequential()
+gru_model.add(keras.layers.Embedding(10000, 16))
+gru_model.add(GRU(128, activation='tanh'))
+gru_model.add(Dense(1, activation='sigmoid'))
+
+print(gru_model.summary())
+build_and_train_model(gru_model, train_data, train_labels, test_data, test_labels)
