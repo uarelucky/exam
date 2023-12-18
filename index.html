@@ -1,5 +1,5 @@
-Linear Regression
-----------------------------------------------------------------------------------------------------------------------------
+Linear Regression--------------------------------------------------------------------------------------------------------------------------------------
+
 import random
 import matplotlib.pyplot as plt
 
@@ -39,10 +39,12 @@ print("Slope (b1):", b1)
 print("Intercept (b0):", b0)
 print("Mean Squared Error (MSE):", mse)
 
----------------------------------------------------------------------------------------------------------------------------
 
-Histogram Equalization
-------------------------------------------------------------------------------------------------------------------------
+
+
+
+Histogram Equalization--------------------------------------------------------------------------------------------------------------------------
+
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -88,9 +90,13 @@ plt.xlabel('Pixel Value')
 plt.ylabel('Frequency')
 
 plt.show()
----------------------------------------------------------------------------------------------------------------------------
-Morphological Operations
---------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+Morphological Operations-------------------------------------------------------------------------------------------------------------------------------------------
+
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -123,9 +129,12 @@ plt.tight_layout()
 plt.show()
 
 
-----------------------------------------------------------------------------------------------------------------------------
-Feed Forward Neural Network
-----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Feed Forward Neural Network------------------------------------------------------------------------------------------------------------------------------
+
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.datasets import cifar10
@@ -204,9 +213,12 @@ predictions = model.predict(np.expand_dims(test_images[n], axis=0))
 predicted_label = np.argmax(predictions)
 print(f"Predicted Label: {predicted_label}")
 
-----------------------------------------------------------------------------------------------------------------------------
-Xavier Initialization
----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Xavier Initialization----------------------------------------------------------------------------------------------------------------------------------------------
+
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.datasets import cifar10
@@ -293,9 +305,9 @@ plt.show()
 
 
 
-------------------------------------------------------------------------------------------------------------------------------
-Kaiming Initialization
-------------------------------------------------------------------------------------------------------------------------------
+
+
+Kaiming Initialization------------------------------------------------------------------------------------------------------------------------
 
 import tensorflow as tf
 from tensorflow.keras import layers, models
@@ -368,10 +380,11 @@ for i in range(5):
     plt.axis('off')
 plt.show()
 
-------------------------------------------------------------------------------------------------------------------------------
 
-Dropout Regularization
-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Dropout Regularization---------------------------------------------------------------------------------------------------------------------------------------
 
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import classification_report
@@ -447,10 +460,12 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend()
 plt.show()
-------------------------------------------------------------------------------------------------------------------------------
 
-L2 Regularization
-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+L2 Regularization---------------------------------------------------------------------------------------------------------------------------
 
 import tensorflow as tf
 from tensorflow.keras import layers, models
@@ -490,7 +505,7 @@ model.add(Dense(10, activation="softmax"))
 print("[INFO] training network...")
 optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
 model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
-H = model.fit(trainX, trainY, validation_data=(testX, testY), epochs=10, batch_size=32)
+H = model.fit(trainX, trainY, validation_data=(testX, testY), epochs=100, batch_size=32)
 
 test_loss, test_acc = model.evaluate(testX, testY)
 print("Test Loss: %.2f" % test_loss)
@@ -504,20 +519,21 @@ print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), ta
 
 plt.style.use("ggplot")
 plt.figure()
-plt.plot(np.arange(0, 10), H.history["loss"], label="train_loss")
-plt.plot(np.arange(0, 10), H.history["val_loss"], label="val_loss")
-plt.plot(np.arange(0, 10), H.history["accuracy"], label="train_acc")
-plt.plot(np.arange(0, 10), H.history["val_accuracy"], label="val_acc")
+plt.plot(np.arange(0, 100), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, 100), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, 100), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(0, 100), H.history["val_accuracy"], label="val_acc")
 plt.title("Training Loss and Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("Loss/Accuracy")
 plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'])
 plt.show()
 
-------------------------------------------------------------------------------------------------------------------------------
 
-Convolutional Neural Network
-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Convolutional Neural Network---------------------------------------------------------------------------------------------------------------------
 
 import tensorflow as tf
 from tensorflow.keras import layers, models
@@ -550,12 +566,17 @@ model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
               metrics=['accuracy'])
 
 # Train the model
-model.fit(augmented_train_data, epochs=10, validation_data=(test_images, test_labels))
+model.fit(augmented_train_data, epochs=50, validation_data=(test_images, test_labels))
 
 # Evaluate the model
 test_loss, test_acc = model.evaluate(test_images, test_labels)
 print("Test Accuracy:", test_acc)
-[7:10 PM, 12/17/2023] Gautham: Transfer Learning
+
+
+
+
+
+Transfer Learning--------------------------------------------------------------------------------------------------------------------------------------------------
 
 from tensorflow.keras.datasets import mnist
 import matplotlib.pyplot as plt
@@ -608,7 +629,7 @@ model.compile(loss='categorical_crossentropy',
 model.summary()
 
 history = model.fit(x_train_final, y_train_final,
-                    epochs=5,
+                    epochs=20,
                     batch_size=128,
                     validation_data=(x_test_final, y_test_final))
 
@@ -630,182 +651,219 @@ plt.xlabel('no.of epochs')
 plt.ylabel('Accuracy/Loss')
 plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'])
 plt.show()
-------------------------------------------------------------------------------------------------------------------------------
 
-RNN IMDB
-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+RNN IMDB-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+from tensorflow.keras.datasets import mnist
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.utils import to_categorical
+import numpy as np
+import warnings
+warnings.filterwarnings('ignore')
+
+(X_train, y_train), (X_test, y_test) = mnist.load_data()
+IMG_SIZE = 32
+
+import cv2
+def resize(img_array):
+    tmp = np.empty((img_array.shape[0], IMG_SIZE, IMG_SIZE))
+    for i in range(len(img_array)):
+        img = img_array[i].reshape(28, 28).astype('uint8')
+        img = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
+        img = img.astype('float32')/255
+        tmp[i] = img
+    return tmp
+
+X_train_resize = resize(X_train)
+X_test_resize = resize(X_test)
+
+x_train_final = np.stack((X_train_resize,)*3, axis=-1)
+x_test_final = np.stack((X_test_resize,)*3, axis=-1)
+
+from keras.models import Sequential
+from keras.applications import VGG19
+from keras.layers import Dense, Flatten
+
+from keras.utils import to_categorical
+y_train_final = to_categorical(y_train)
+y_test_final = to_categorical(y_test)
+
+vgg19 = VGG19(weights='imagenet',
+              include_top=False,
+              input_shape=(IMG_SIZE, IMG_SIZE, 3))
+
+model = Sequential()
+model.add(vgg19)
+model.add(Flatten())
+model.add(Dense(10, activation='softmax'))
+
+model.compile(loss='categorical_crossentropy',
+              optimizer='adam',  # Change 'sgd' to 'adam'
+              metrics=['accuracy'])
+
+model.summary()
+
+history = model.fit(x_train_final, y_train_final,
+                    epochs=20,
+                    batch_size=128,
+                    validation_data=(x_test_final, y_test_final))
+
+test_loss, test_accuracy = model.evaluate(x_test_final, y_test_final)
+print("Loss = %.2f" % test_loss)
+print("Accuracy = %.2f" % test_accuracy)
+
+preds = model.predict(x_test_final, batch_size=128)
+results = np.argmax(preds, axis=-1)
+
+history.history.keys()
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Training Loss and Accuracy')
+plt.xlabel('no.of epochs')
+plt.ylabel('Accuracy/Loss')
+plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'])
+plt.show()
+
+
+
+
+
+LSTM GRU IMDB-----------------------------------------------------------------------------------------------------------------------------------------
 
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
-import matplotlib.pyplot as plt
-
-print(tf._version_)
-
-# Load IMDB dataset
+print(tf.__version__)
 imdb = keras.datasets.imdb
 (train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
-
-# Explore the data
+#explore the data
 print("Training entries: {}, labels: {}".format(len(train_data), len(train_labels)))
-print("Training labels: ", np.unique(train_labels))
-print("Test labels: ", np.unique(test_labels))
-
-# Print label distribution
-unique, counts = np.unique(train_labels, return_counts=True)
-print("Train label distribution: ", dict(zip(unique, counts)))
-unique, counts = np.unique(test_labels, return_counts=True)
-print("Test label distribution: ", dict(zip(unique, counts)))
-
-# Print the embedded vector
+print("training labels : ",np.unique(train_labels))
+print("test labels: ",np.unique(test_labels))
+unique,counts = np.unique(train_labels,return_counts=True)
+print("train label distribution: ", dict(zip(unique,counts)))
+unique,counts = np.unique(test_labels,return_counts=True)
+print("test label distribution: ", dict(zip(unique,counts)))
+#print the embedded vector
 print(train_data[0])
-print("Length of first two training entries: ", len(train_data[0]), len(train_data[1]))
-
-# Convert the embedded vector back to words
+len(train_data[0]), len(train_data[1])
+#convert the embedded vector back to words
+#A dictionary mapping words to an integer index
 word_index = imdb.get_word_index()
 
-# The first indices are reserved
-word_index = {k: (v + 3) for k, v in word_index.items()}
+#the first indices are reserved
+word_index  = {k: (v+3) for k,v in word_index.items()}
 word_index["<PAD>"] = 0
 word_index["<START>"] = 1
-word_index["<UNK>"] = 2  # UNKNOWN
+word_index["<UNK>"] = 2 #UNKNOWN
 word_index["<UNUSED>"] = 3
 
 reverse_word_index = dict([(value, key) for (key, value) in word_index.items()])
 
 def decode_review(text):
-    return ''.join([reverse_word_index.get(i, '?') for i in text])
-
+  return ''.join([reverse_word_index.get(i, '?') for i in text])
 decode_review(train_data[0])
-
-# Preprocess the data to make the review of uniform length
-maxlen = 256
-train_data = keras.preprocessing.sequence.pad_sequences(train_data, value=word_index["<PAD>"], padding='post', maxlen=maxlen)
-test_data = keras.preprocessing.sequence.pad_sequences(test_data, value=word_index["<PAD>"], padding='post', maxlen=maxlen)
-
-# Print length of first two training entries after padding
-print("Length of first two training entries after padding: ", len(train_data[0]), len(train_data[1]))
-
-# Create a model
+#Preprocess the data to make the review of uniform length
+train_data = keras.preprocessing.sequence.pad_sequences(train_data,
+                                                        value = word_index["<PAD>"],
+                                                        padding = 'post',
+                                                        maxlen = 256)
+test_data = keras.preprocessing.sequence.pad_sequences(test_data,
+                                                        value = word_index["<PAD>"],
+                                                        padding = 'post',
+                                                        maxlen = 256)
+len(train_data[0]), len(train_data[1])
+print(train_data[0])
+#Create a model
 from keras.models import Sequential
-from keras.layers import Embedding, SimpleRNN, Dense
+# from keras.layers.embedding import Embedding
+from keras.layers import Dense,Activation
+from keras.layers import LSTM
 
 vocab_size = 10000
-
-# Building a simple RNN model
+maxlen = 256
+#building an LSTM model
 rnn_model = Sequential()
-rnn_model.add(Embedding(vocab_size, 16))
-rnn_model.add(SimpleRNN(100, return_sequences=True))
-rnn_model.add(SimpleRNN(50, return_sequences=True))
-rnn_model.add(SimpleRNN(25))
+rnn_model.add(keras.layers.Embedding(vocab_size, 16))
+rnn_model.add(LSTM(128, activation = 'tanh'))
 rnn_model.add(Dense(1, activation='sigmoid'))
 
 print(rnn_model.summary())
+#compile the model
+rnn_model.compile(loss="binary_crossentropy",optimizer="rmsprop",metrics=["accuracy"])
+#create a validation set from train set
+# x_val = train_data[:10000]
+# partial_x_train = train_data[10000:]
 
-# Compile the model
-rnn_model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=["accuracy"])
 
-# Fit the model
-epochs = 5
-batch_size = 128
-history = rnn_model.fit(train_data, train_labels, validation_data=(test_data, test_labels), epochs=epochs, batch_size=batch_size, verbose=1)
-
-# Evaluate the model
+# y_val = train_labels[:10000]
+# partial_y_train = train_labels[10000:]
+# history = rnn_model.fit(partial_x_train, partial_y_train,validation_data = (x_val,y_val),epochs = 40,batch_size=128,verbose = 1)
+history 
+= rnn_model.fit(train_data, train_labels,validation_data = (test_data,test_labels),epochs = 20,batch_size=128,verbose = 1)
+# predictions = rnn_model.evaluate(test_data, test_labels)
+# history_dict = history.history
+# history_dict.keys()
 test_loss, test_accuracy = rnn_model.evaluate(test_data, test_labels)
-print("Loss = %.2f" % test_loss)
-print("Accuracy = %.2f" % test_accuracy)
+print("Loss = %.2f"%test_loss)
+print("Accuracy=%.2f"%test_accuracy)
+import matplotlib.pyplot as plt
 
-# Plot the training history
 plt.figure()
-plt.plot(history.history["accuracy"], label="Train")
-plt.plot(history.history["val_accuracy"], label="Test")
+plt.plot(history.history["accuracy"],label="Train");
+plt.plot(history.history["val_accuracy"],label="Test");
 plt.title("Accuracy")
 plt.ylabel("Accuracy")
 plt.xlabel("Epochs")
 plt.legend()
-plt.show()
-
+plt.show();
 plt.figure()
-plt.plot(history.history["loss"], label="Train")
-plt.plot(history.history["val_loss"], label="Test")
+plt.plot(history.history["loss"],label="Train");
+plt.plot(history.history["val_loss"],label="Test");
 plt.title("Loss")
 plt.ylabel("Loss")
 plt.xlabel("Epochs")
 plt.legend()
-plt.show()
-
-
-------------------------------------------------------------------------------------------------------------------------------
-
-LSTM GRU IMDB
-------------------------------------------------------------------------------------------------------------------------------
-
-import tensorflow as tf
-from tensorflow import keras
-from keras.layers import LSTM, GRU
-import numpy as np
-import matplotlib.pyplot as plt
-
-print(tf._version_)
-imdb = keras.datasets.imdb
-(train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
-
-# Explore the data
-print("Training entries: {}, labels: {}".format(len(train_data), len(train_labels)))
-print("Training labels: ", np.unique(train_labels))
-print("Test labels: ", np.unique(test_labels))
-unique, counts = np.unique(train_labels, return_counts=True)
-print("Train label distribution: ", dict(zip(unique, counts)))
-unique, counts = np.unique(test_labels, return_counts=True)
-print("Test label distribution: ", dict(zip(unique, counts)))
-
-# Preprocess the data to make the review of uniform length
+plt.show();
+#build a GRU model
+from keras.layers import GRU
+vocab_size = 10000
 maxlen = 256
-train_data = keras.preprocessing.sequence.pad_sequences(train_data, value=0, padding='post', maxlen=maxlen)
-test_data = keras.preprocessing.sequence.pad_sequences(test_data, value=0, padding='post', maxlen=maxlen)
-
-# Create a common function to build and train models
-def build_and_train_model(model, train_data, train_labels, test_data, test_labels, epochs=5, batch_size=128):
-    model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=["accuracy"])
-    history = model.fit(train_data, train_labels, validation_data=(test_data, test_labels), epochs=epochs,
-                        batch_size=batch_size, verbose=1)
-    test_loss, test_accuracy = model.evaluate(test_data, test_labels)
-    print("Loss = %.2f" % test_loss)
-    print("Accuracy=%.2f" % test_accuracy)
-
-    # Plot training history
-    plt.figure()
-    plt.plot(history.history["accuracy"], label="Train")
-    plt.plot(history.history["val_accuracy"], label="Test")
-    plt.title("Accuracy")
-    plt.ylabel("Accuracy")
-    plt.xlabel("Epochs")
-    plt.legend()
-    plt.show()
-
-    plt.figure()
-    plt.plot(history.history["loss"], label="Train")
-    plt.plot(history.history["val_loss"], label="Test")
-    plt.title("Loss")
-    plt.ylabel("Loss")
-    plt.xlabel("Epochs")
-    plt.legend()
-    plt.show()
-
-# Build and train the LSTM model
-rnn_model = Sequential()
-rnn_model.add(keras.layers.Embedding(10000, 16))
-rnn_model.add(LSTM(128, activation='tanh'))
-rnn_model.add(Dense(1, activation='sigmoid'))
-
-print(rnn_model.summary())
-build_and_train_model(rnn_model, train_data, train_labels, test_data, test_labels)
-
-# Build and train the GRU model
+#building a GRU model
 gru_model = Sequential()
-gru_model.add(keras.layers.Embedding(10000, 16))
-gru_model.add(GRU(128, activation='tanh'))
+gru_model.add(keras.layers.Embedding(vocab_size, 16))
+gru_model.add(GRU(128, activation = 'tanh'))
 gru_model.add(Dense(1, activation='sigmoid'))
 
+
 print(gru_model.summary())
-build_and_train_model(gru_model, train_data, train_labels, test_data, test_labels)
+#compile the model
+gru_model.compile(loss="binary_crossentropy",optimizer="rmsprop",metrics=["accuracy"])
+history1 = gru_model.fit(train_data, train_labels,validation_data = (test_data,test_labels),epochs = 20,batch_size=128,verbose = 1)
+test_loss, test_accuracy = gru_model.evaluate(test_data, test_labels)
+print("Loss = %.2f"%test_loss)
+print("Accuracy=%.2f"%test_accuracy)
+plt.figure()
+plt.plot(history1.history["accuracy"],label="Train");
+plt.plot(history1.history["val_accuracy"],label="Test");
+plt.title("Accuracy")
+plt.ylabel("Accuracy")
+plt.xlabel("Epochs")
+plt.legend()
+plt.show();
+plt.figure()
+plt.plot(history1.history["loss"],label="Train");
+plt.plot(history1.history["val_loss"],label="Test");
+plt.title("Loss")
+plt.ylabel("Loss")
+plt.xlabel("Epochs")
+plt.legend()
+plt.show();
